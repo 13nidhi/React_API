@@ -1,17 +1,44 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import ReactDom from 'react-dom';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+class App extends React.Component {
+    
+    state = { lat : null, errorMessage: ''}
+
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition(
+            position => this.setState({ lat : position.coords.latitude}) , 
+            err => this.setState({ errorMessage: err.message })
+            
+        );
+    }
+
+    componentDidUpdate() {
+        console.log('My component was just Updated - it rerendered!');
+    }
+// i use renderContent because inseted of passing border on every condition we can pass in one div i will save time , and reusable also
+    renderContent() {
+        if(this.state.errorMessage && !this.state.lat)
+        {
+            return <div>Error: {this.state.errorMessage}</div>
+        }
+       
+        if(!this.state.errorMessage && this.state.lat)
+        {
+            return <div><SeasonDisplay lat={this.state.lat}/></div>
+        }
+        return <div><Spinner message="Please accept message request"/></div>
+    }
+    
+    render() {
+        return <div className="border red">{this.renderContent()}</div> 
+}
+};
+
+
+ReactDom.render(
+    <App/>,
+    document.querySelector('#root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
